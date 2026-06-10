@@ -1,8 +1,13 @@
 ---
-title: 'Markdown Style Guide'
-description: 'Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro.'
-pubDate: 'Jun 19 2024'
+title: 'Nusa Digital'
+description: 'Interface design for a regional e-commerce platform — simplifying the buying flow across mobile and desktop.'
+pubDate: 'May 15 2024'
 heroImage: '../../assets/blog-placeholder-1.jpg'
+category: 'UI/UX'
+year: '2024'
+color: '#2b5f6e'
+role: 'UX · UI · Prototyping · Dev handoff'
+client: 'Nusa Digital'
 ---
 
 Here is a sample of some basic Markdown syntax that can be used when writing Markdown content in Astro.

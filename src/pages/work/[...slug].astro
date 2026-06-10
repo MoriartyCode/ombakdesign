@@ -1,0 +1,34 @@
+---
+import { type CollectionEntry, getCollection, render } from 'astro:content';
+import WorkPost from '../../layouts/WorkPost.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  const sorted = posts.sort((a, b) => {
+    const yearA = parseInt(a.data.year ?? String(new Date(a.data.pubDate).getFullYear()));
+    const yearB = parseInt(b.data.year ?? String(new Date(b.data.pubDate).getFullYear()));
+    return yearB - yearA;
+  });
+
+  return sorted.map((post, i) => {
+    const next = sorted[(i + 1) % sorted.length];
+    return {
+      params: { slug: post.id },
+      props: { post, nextId: next.id, nextTitle: next.data.title },
+    };
+  });
+}
+
+type Props = {
+  post: CollectionEntry<'blog'>;
+  nextId: string;
+  nextTitle: string;
+};
+
+const { post, nextId, nextTitle } = Astro.props;
+const { Content } = await render(post);
+---
+
+<WorkPost {...post.data} nextId={nextId} nextTitle={nextTitle}>
+  <Content />
+</WorkPost>

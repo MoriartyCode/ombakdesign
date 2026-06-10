@@ -1,15 +1,3 @@
----
-import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
-
-const posts = await getCollection('blog');
-const works = posts.sort((a, b) => {
-  const yearA = parseInt(a.data.year ?? String(new Date(a.data.pubDate).getFullYear()));
-  const yearB = parseInt(b.data.year ?? String(new Date(b.data.pubDate).getFullYear()));
-  return yearB - yearA;
-});
-const total = String(works.length).padStart(2, '0');
----
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,12 +6,11 @@ const total = String(works.length).padStart(2, '0');
 <title>Ombak Design Studio — Branding & UI/UX</title>
 <meta name="description" content="Ombak Design Studio is a Jakarta studio shaping brands and the interfaces they live in. Branding and UI/UX, made with calm intention." />
 
-<link rel="icon" href="/favicon.ico" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-<style is:global>
+<style>
   /* ============================================================
      OMBAK DESIGN STUDIO — single-file landing page
      Calm minimal · pixel ocean · Awwwards-grade polish
@@ -200,6 +187,54 @@ const total = String(works.length).padStart(2, '0');
   .work-row:hover .work-row__view { gap: 16px; }
   .work__note { margin-top: clamp(48px, 8vw, 110px); font-family: "Space Mono", monospace; font-size: 12px; letter-spacing: 0.06em; color: var(--ink-soft); }
 
+  /* ---------- WORK DETAIL (full-screen overlay) ---------- */
+  .detail {
+    position: fixed; inset: 0; z-index: 65; background: var(--foam);
+    transform: translateY(100%); opacity: 0; visibility: hidden;
+    transition: transform .7s var(--ease), opacity .5s ease, visibility .7s;
+  }
+  .detail.open { transform: none; opacity: 1; visibility: visible; }
+  .detail__scroll { position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .detail__bar {
+    position: sticky; top: 0; z-index: 3; display: flex; justify-content: space-between; align-items: center;
+    padding: 20px var(--pad); background: color-mix(in srgb, var(--foam) 86%, transparent);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+    font-family: "Space Mono", monospace; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .detail__close { background: none; border: none; cursor: pointer; font: inherit; color: var(--ink); display: inline-flex; align-items: center; gap: 8px; padding: 6px 0; }
+  .detail__inner { padding-top: clamp(40px, 7vw, 80px); padding-bottom: clamp(72px, 12vw, 150px); }
+  .detail__title { font-size: clamp(40px, 9vw, 110px); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; margin: 16px 0 0; }
+  .detail__hero { margin-top: clamp(32px, 5vw, 56px); border: 1px solid var(--line); overflow: hidden; aspect-ratio: 16 / 9; background: var(--foam-2); }
+  .detail__hero canvas, .detail__hero img { width: 100%; height: 100%; display: block; object-fit: cover; image-rendering: pixelated; }
+  .detail__body { display: grid; grid-template-columns: 1.4fr 0.6fr; gap: clamp(28px, 5vw, 72px); margin-top: clamp(40px, 6vw, 72px); align-items: start; }
+  .detail__intro { font-size: clamp(20px, 2.6vw, 28px); line-height: 1.4; font-weight: 500; letter-spacing: -0.01em; max-width: 34ch; }
+  .detail__meta { display: flex; flex-direction: column; gap: 20px; }
+  .detail__meta .row span { display: block; font-family: "Space Mono", monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 4px; }
+  .detail__meta .row p { margin: 0; font-weight: 500; }
+  .detail__meta .row + .row { padding-top: 18px; border-top: 1px solid var(--line); }
+  .detail__live { margin-top: 6px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 600; border-bottom: 2px solid var(--ink); padding-bottom: 3px; transition: gap .3s var(--ease); }
+  .detail__live:hover { gap: 14px; }
+  .detail__gallery { margin-top: clamp(48px, 8vw, 110px); display: flex; flex-direction: column; gap: clamp(20px, 3vw, 36px); }
+  .detail__gallery .panel { border: 1px solid var(--line); overflow: hidden; aspect-ratio: 16 / 9; background: var(--foam-2); }
+  .detail__gallery .panel.tall { aspect-ratio: 4 / 5; }
+  .detail__gallery .panel canvas, .detail__gallery .panel img { width: 100%; height: 100%; display: block; object-fit: cover; image-rendering: pixelated; }
+  .detail__pair { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 3vw, 36px); }
+  .detail__next {
+    margin-top: clamp(56px, 9vw, 120px); width: 100%; text-align: left; background: none; border: none; border-top: 1px solid var(--line);
+    cursor: pointer; font-family: "Inter", sans-serif; color: var(--ink); padding: clamp(28px,5vw,52px) 0 0;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 20px;
+  }
+  .detail__next .lbl { font-family: "Space Mono", monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+  .detail__next .nm { font-size: clamp(28px, 5vw, 56px); font-weight: 700; letter-spacing: -0.03em; transition: opacity .2s ease; }
+  .detail__next:hover .nm { opacity: .6; }
+  @media (max-width: 720px) {
+    .detail__body { grid-template-columns: 1fr; }
+    .detail__pair { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .detail { transition: none; }
+  }
+
   /* ---------- CONTACT ---------- */
   .contact { text-align: left; }
   .contact h2 { font-size: clamp(36px, 8vw, 92px); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; margin: 18px 0 0; }
@@ -327,31 +362,7 @@ const total = String(works.length).padStart(2, '0');
         <span class="eyebrow reveal">Selected work</span>
         <h2 class="reveal">A few recent projects.</h2>
       </div>
-      <div class="work__list">
-        {works.map((w, i) => {
-          const color = w.data.color ?? '#367689';
-          const year = w.data.year ?? new Date(w.data.pubDate).getFullYear().toString();
-          const category = w.data.category ?? 'Work';
-          return (
-            <a class="work-row reveal" href={`/work/${w.id}/`} data-link>
-              <span class="work-row__media">
-                <span class="work-row__media-inner">
-                  {w.data.heroImage
-                    ? <Image src={w.data.heroImage} alt={w.data.title} width={880} height={550} />
-                    : <canvas data-thumb={color}></canvas>
-                  }
-                </span>
-              </span>
-              <span class="work-row__info">
-                <span class="work-row__index">{String(i + 1).padStart(2, '0')} / {total}</span>
-                <span class="work-row__title">{w.data.title}</span>
-                <span class="work-row__cat">{category} · {year}</span>
-                <span class="work-row__view">View project →</span>
-              </span>
-            </a>
-          );
-        })}
-      </div>
+      <div class="work__list" id="workGrid"></div>
       <p class="work__note reveal">// More on the way.</p>
     </div>
   </section>
@@ -378,18 +389,96 @@ const total = String(works.length).padStart(2, '0');
   </div>
 </footer>
 
-<!-- libraries (CDN) -->
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script is:inline src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+<!-- ===================== WORK DETAIL (filled by JS) ===================== -->
+<div class="detail" id="detail" role="dialog" aria-modal="true" aria-hidden="true" aria-label="Project detail">
+  <div class="detail__scroll" id="detailScroll"></div>
+</div>
 
-<script is:inline>
+<!-- libraries (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+
+<script>
+/* ============================================================================
+   ▓▓▓  ADD YOUR WORK HERE  ▓▓▓
+   Copy one block, paste into the list, fill the fields.
+
+   REQUIRED:
+     title    – project name
+     category – "Branding" / "UI/UX"
+     year     – "2025"
+     url       – live-site link, or "#" if none yet
+     image    – cover image "images/foo.jpg", or "" for an auto pixel cover
+     color    – accent hex used for any auto pixel art, e.g. "#367689"
+
+   OPTIONAL (used in the detail view that opens when a project is clicked):
+     intro    – one or two sentences about the project
+     role     – what you did, e.g. "Brand identity · Art direction"
+     client   – client name (leave out if none)
+     gallery  – ["images/1.jpg","images/2.jpg"] ; leave [] for auto pixel panels
+   ============================================================================ */
+const WORKS = [
+  {
+    title: "Project One", category: "Branding", year: "2025",
+    url: "#", image: "", color: "#367689",
+    intro: "A short summary of the project goes here — the problem, what you made, and the outcome in a sentence or two.",
+    role: "Brand identity · Art direction",
+    client: "Client name",
+    gallery: []
+  },
+  {
+    title: "Project Two", category: "UI/UX", year: "2025",
+    url: "#", image: "", color: "#4f97a6",
+    intro: "Product and interface design from first wireframe to shipped screens. Replace this with the real story.",
+    role: "Product design · Design system",
+    client: "Client name",
+    gallery: []
+  },
+  {
+    title: "Project Three", category: "Branding", year: "2024",
+    url: "#", image: "", color: "#71b3bf",
+    intro: "Describe the brand work here — what made it recognizable and where it shows up.",
+    role: "Brand identity · Guidelines",
+    gallery: []
+  },
+  {
+    title: "Project Four", category: "UI/UX", year: "2024",
+    url: "#", image: "", color: "#2b5f6e",
+    intro: "Describe the interface work here — the flows, the screens, the result.",
+    role: "UX · UI · Prototyping",
+    gallery: []
+  }
+];
+/* ===== end of editable section ===== */
+
 const REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const FINE = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 let LENIS = null;
 document.getElementById('year').textContent = new Date().getFullYear();
 
-/* ---------- PIXEL THUMB CANVASES ---------- */
+/* ---------- WORK CARDS ---------- */
+(function renderWork() {
+  const grid = document.getElementById('workGrid');
+  const total = String(WORKS.length).padStart(2, '0');
+  grid.innerHTML = WORKS.map((w, i) => {
+    const media = w.image
+      ? `<span class="work-row__media-inner"><img src="${w.image}" alt="${w.title}"></span>`
+      : `<span class="work-row__media-inner"><canvas data-thumb="${w.color || '#367689'}"></canvas></span>`;
+    const ext = (w.url && w.url !== '#') ? 'target="_blank" rel="noopener"' : '';
+    return `<a class="work-row reveal" href="${w.url || '#'}" data-index="${i}" data-link>
+      <span class="work-row__media">${media}</span>
+      <span class="work-row__info">
+        <span class="work-row__index">${String(i + 1).padStart(2, '0')} / ${total}</span>
+        <span class="work-row__title">${w.title}</span>
+        <span class="work-row__cat">${w.category} · ${w.year}</span>
+        <span class="work-row__view">View project →</span>
+      </span>
+    </a>`;
+  }).join('');
+  grid.querySelectorAll('canvas[data-thumb]').forEach(cv => paintThumb(cv, cv.dataset.thumb));
+})();
+
 function paintThumb(cv, base) {
   const c = cv.getContext('2d');
   const COLS = 22, ROWS = 14; cv.width = COLS; cv.height = ROWS;
@@ -407,7 +496,6 @@ function shade(hex, amt) {
   r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b));
   return '#'+((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
 }
-document.querySelectorAll('canvas[data-thumb]').forEach(cv => paintThumb(cv, cv.dataset.thumb));
 
 /* ---------- MARQUEE ---------- */
 (function marquee() {
@@ -519,6 +607,7 @@ document.querySelectorAll('canvas[data-thumb]').forEach(cv => paintThumb(cv, cv.
     gsap.ticker.add(t => LENIS.raf(t*1000));
     gsap.ticker.lagSmoothing(0);
     document.querySelectorAll('a[href^="#"]').forEach(a => {
+      if (a.hasAttribute('data-index')) return; // work rows open the detail view instead
       a.addEventListener('click', e => {
         const id = a.getAttribute('href');
         if (!id || id === '#') return;
@@ -531,6 +620,7 @@ document.querySelectorAll('canvas[data-thumb]').forEach(cv => paintThumb(cv, cv.
   // ---- PARALLAX (per section + per project image) ----
   if (hasGSAP && hasST && !REDUCE) {
     gsap.registerPlugin(ScrollTrigger);
+    // each section's content drifts at a gentle, slightly different rate -> depth
     gsap.utils.toArray('section.block:not(#work) > .wrap').forEach((el, i) => {
       const amt = 26 + (i % 2) * 14;
       gsap.fromTo(el, { y: amt }, {
@@ -538,6 +628,7 @@ document.querySelectorAll('canvas[data-thumb]').forEach(cv => paintThumb(cv, cv.
         scrollTrigger: { trigger: el, start: 'top bottom', end: 'bottom top', scrub: 0.6 }
       });
     });
+    // project images move within their frame as you scroll past
     gsap.utils.toArray('.work-row__media-inner').forEach((el) => {
       gsap.fromTo(el, { yPercent: -8 }, {
         yPercent: 8, ease: 'none',
@@ -574,6 +665,102 @@ document.querySelectorAll('canvas[data-thumb]').forEach(cv => paintThumb(cv, cv.
       el.addEventListener('pointerleave', () => { mx(0); my(0); });
     });
   }
+})();
+
+/* ============================================================================
+   WORK DETAIL — full-screen overlay, built from the WORKS array
+   ============================================================================ */
+(function detail() {
+  const root = document.getElementById('detail');
+  const scroll = document.getElementById('detailScroll');
+  const total = String(WORKS.length).padStart(2, '0');
+  let lastFocus = null;
+
+  function pixelCanvas(color, cols, rows, seed) {
+    const cv = document.createElement('canvas'); cv.width = cols; cv.height = rows;
+    const c = cv.getContext('2d');
+    const ramp = [shade(color,-26), shade(color,-10), color, shade(color,16), shade(color,34)];
+    for (let y=0; y<rows; y++) for (let x=0; x<cols; x++) {
+      const w = Math.sin(x*0.5 + y*0.45 + seed) + Math.sin(x*0.26 - y*0.38 + seed*1.7);
+      const v = Math.max(0, Math.min(1, 0.5 + w*0.22 + (y/rows)*0.18));
+      c.fillStyle = ramp[Math.round(v*(ramp.length-1))]; c.fillRect(x, y, 1, 1);
+    }
+    return cv;
+  }
+
+  function build(i) {
+    const w = WORKS[i];
+    const nextI = (i + 1) % WORKS.length;
+    const next = WORKS[nextI];
+    const live = (w.url && w.url !== '#')
+      ? `<a class="detail__live" href="${w.url}" target="_blank" rel="noopener" data-link>Visit live site ↗</a>` : '';
+    const roleRow = w.role ? `<div class="row"><span>Role</span><p>${w.role}</p></div>` : '';
+    const clientRow = w.client ? `<div class="row"><span>Client</span><p>${w.client}</p></div>` : '';
+    const gal = (w.gallery && w.gallery.length)
+      ? w.gallery.map(src => `<div class="panel"><img src="${src}" alt=""></div>`).join('')
+      : `<div class="detail__pair"><div class="panel" data-px></div><div class="panel" data-px></div></div><div class="panel" data-px></div>`;
+
+    scroll.innerHTML = `
+      <div class="detail__bar">
+        <span>Selected work · ${String(i+1).padStart(2,'0')} / ${total}</span>
+        <button class="detail__close" id="detailClose" data-link>Close ✕</button>
+      </div>
+      <div class="wrap detail__inner">
+        <span class="eyebrow">${w.category}</span>
+        <h2 class="detail__title">${w.title}</h2>
+        <div class="detail__hero" data-px-hero>${w.image ? `<img src="${w.image}" alt="">` : ''}</div>
+        <div class="detail__body">
+          <p class="detail__intro">${w.intro || ''}</p>
+          <div class="detail__meta">
+            <div class="row"><span>Services</span><p>${w.category}</p></div>
+            ${roleRow}${clientRow}
+            <div class="row"><span>Year</span><p>${w.year}</p></div>
+            ${live}
+          </div>
+        </div>
+        <div class="detail__gallery">${gal}</div>
+        <button class="detail__next" id="detailNext" data-link>
+          <span class="lbl">Next project</span>
+          <span class="nm">${next.title} →</span>
+        </button>
+      </div>`;
+
+    if (!w.image) {
+      scroll.querySelector('[data-px-hero]').appendChild(pixelCanvas(w.color || '#367689', 32, 18, i + 1));
+    }
+    if (!(w.gallery && w.gallery.length)) {
+      scroll.querySelectorAll('[data-px]').forEach((p, k) => {
+        p.appendChild(pixelCanvas(shade(w.color || '#367689', (k - 1) * 10), 24, 16, i + k + 2));
+      });
+    }
+    scroll.querySelector('#detailClose').addEventListener('click', close);
+    scroll.querySelector('#detailNext').addEventListener('click', () => open(nextI));
+    scroll.scrollTop = 0;
+  }
+
+  function open(i) {
+    lastFocus = document.activeElement;
+    build(i);
+    root.classList.add('open');
+    root.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('loading');   // reuse the scroll lock
+    if (LENIS) LENIS.stop();
+    const cl = scroll.querySelector('#detailClose'); if (cl) cl.focus();
+  }
+  function close() {
+    root.classList.remove('open');
+    root.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('loading');
+    if (LENIS) LENIS.start();
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  document.querySelectorAll('.work-row').forEach(row => {
+    row.addEventListener('click', e => { e.preventDefault(); open(parseInt(row.dataset.index, 10) || 0); });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && root.classList.contains('open')) close();
+  });
 })();
 
 /* ============================================================================
