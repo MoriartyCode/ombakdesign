@@ -1,0 +1,35 @@
+backend:
+  name: github
+  repo: MoriartyCode/ombakdesign
+  branch: main
+
+# Local editing: active only when a proxy server runs on localhost:8081.
+# Re-comment before pushing so production uses the GitHub backend.
+local_backend: true
+
+media_folder: "src/assets/blog"
+public_folder: "/src/assets/blog"
+
+collections:
+  - name: blog
+    label: Work
+    folder: src/content/blog
+    create: true
+    slug: "{{slug}}"
+    extension: md
+    # entry-relative media so heroImage stores ../../assets/blog/foo.jpg
+    media_folder: "../../assets/blog"
+    public_folder: "../../assets/blog"
+    identifier_field: title
+    fields:
+      - { name: title, label: Title, widget: string }
+      - { name: description, label: Description, widget: text }
+      - { name: pubDate, label: Publish date, widget: datetime, date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
+      - { name: updatedDate, label: Updated date, widget: datetime, required: false, date_format: "YYYY-MM-DD", time_format: false, picker_utc: true }
+      - { name: heroImage, label: Hero image, widget: image, required: false }
+      - { name: category, label: Category, widget: select, options: ["Branding", "UI/UX"], default: "Branding" }
+      - { name: year, label: Year, widget: string, required: false }
+      - { name: color, label: Accent color, widget: string, default: "#367689", hint: "Hex used for pixel-art fallback when no hero image" }
+      - { name: role, label: Role, widget: string, required: false }
+      - { name: client, label: Client, widget: string, required: false }
+      - { name: body, label: Body, widget: markdown }
