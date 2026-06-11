@@ -12,7 +12,7 @@ const blog = defineCollection({
 			updatedDate: z.coerce.date().optional(),
 			heroImage: z.optional(image()),
 			category: z.string().optional().default('Work'),
-			year: z.string().optional(),
+			year: z.coerce.string().optional(),
 			color: z.string().optional().default('#367689'),
 			role: z.string().optional(),
 			client: z.string().optional(),
