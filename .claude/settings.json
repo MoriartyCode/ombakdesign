@@ -6,7 +6,8 @@
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4322/work/cms-test/)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4322/work/cms-test2/)",
       "Bash(git fetch *)",
-      "Bash(xargs cat)"
+      "Bash(xargs cat)",
+      "Bash(git config *)"
     ]
   }
 }

@@ -2,9 +2,9 @@ backend:
   name: github
   repo: MoriartyCode/ombakdesign
   branch: main
+  base_url: https://api.netlify.com
 
 # Local editing: active only when a proxy server runs on localhost:8081.
-# Re-comment before pushing so production uses the GitHub backend.
 local_backend: true
 
 media_folder: "src/assets/blog"
