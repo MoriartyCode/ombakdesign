@@ -1,5 +1,5 @@
 ---
-title: JMD Travel Agency -----
+title: JMD Travel Agency number 1
 description: Brand identity for a specialty coffee roaster in Jakarta — from wordmark to packaging system.
 pubDate: 2025-03-11
 updatedDate: ''
