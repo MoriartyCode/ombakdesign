@@ -4,7 +4,8 @@
       "Bash(curl -s -X POST http://localhost:8081/api/v1 -H 'Content-Type: application/json' -d '{ *)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(type\\(d\\), len\\(d\\) if isinstance\\(d,list\\) else d\\)\")",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4322/work/cms-test/)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4322/work/cms-test2/)"
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:4322/work/cms-test2/)",
+      "Bash(git fetch *)"
     ]
   }
 }
